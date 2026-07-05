@@ -15,7 +15,6 @@ from dotenv import load_dotenv
 # Load variables from the local .env file (development only).
 load_dotenv()
 
-
 class Config:
     """
     Base configuration shared across all environments.
@@ -28,7 +27,7 @@ class Config:
     # Database
     DATABASE_URL = os.getenv(
         "DATABASE_URL",
-        "postgresql://postgres:postgres@localhost:5432/tasks",
+        "postgresql://postgres:postgres@localhost:5432/platform",
     )
 
     # Redis
@@ -39,4 +38,4 @@ class Config:
 
     # Application
     APP_NAME = "Secure Software Delivery Platform"
-    API_VERSION = "v1"
+    API_VERSION = "v1" 
