@@ -1,13 +1,9 @@
-"""
-User API endpoints.
-"""
-
 from flask import Blueprint
 from flask import jsonify
 from flask import request
 
-from database.db import db
-from models import User
+from src.database.db import db
+from src.models import User
 
 users_bp = Blueprint(
     "users",

@@ -1,16 +1,11 @@
-"""
-Application entry point.
-"""
-
 from flask import Flask
 from flask import jsonify
 
-from api.health import health_bp
-from api.metrics import metrics_bp
-from api.users import users_bp
-from config import Config
-from database.db import db
-
+from src.api.health import health_bp
+from src.api.metrics import metrics_bp
+from src.api.users import users_bp
+from src.config import Config
+from src.database.db import db
 
 def create_app():
     app = Flask(__name__)
