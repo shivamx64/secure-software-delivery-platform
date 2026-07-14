@@ -5,8 +5,8 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-RUN addgroup --system appgroup \
-    && adduser --system --ingroup appgroup appuser
+RUN groupadd -r appgroup && \
+    useradd -r -g appgroup -m -d /home/appuser appuser
 
 COPY requirements.txt .
 
