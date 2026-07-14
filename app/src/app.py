@@ -4,13 +4,18 @@ from flask import jsonify
 from src.api.health import health_bp
 from src.api.metrics import metrics_bp
 from src.api.users import users_bp
-from src.config import Config
+from src.config import DevelopmentConfig
+from src.config import TestingConfig
 from src.database.db import db
 
-def create_app():
+
+def create_app(testing=False):
     app = Flask(__name__)
 
-    app.config.from_object(Config)
+    if testing:
+        app.config.from_object(TestingConfig)
+    else:
+        app.config.from_object(DevelopmentConfig)
 
     db.init_app(app)
 

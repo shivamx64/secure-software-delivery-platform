@@ -1,7 +1,9 @@
 from src.app import create_app
+from src.config import TestConfig
+
 
 def test_health():
-    app = create_app()
+    app = create_app(TestConfig)
 
     client = app.test_client()
 
