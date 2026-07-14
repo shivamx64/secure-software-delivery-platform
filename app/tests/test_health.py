@@ -1,21 +1,12 @@
 from src.app import create_app
-from src.database.db import db
+from src.config import TestingConfig
 
 
 def test_health():
+    app = create_app(TestingConfig)
 
-    app = create_app()
+    client = app.test_client()
 
-    app.config["TESTING"] = True
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    response = client.get("/health")
 
-    with app.app_context():
-        db.create_all()
-
-        client = app.test_client()
-
-        response = client.get("/health")
-
-        assert response.status_code == 200
-
-        db.drop_all()
+    assert response.status_code == 200
