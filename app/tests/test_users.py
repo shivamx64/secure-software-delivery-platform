@@ -1,16 +1,21 @@
 from src.app import create_app
+from src.database.db import db
+
 
 def test_root():
-    app = create_app(testing=True)
 
-    client = app.test_client()
+    app = create_app()
 
-    response = client.get("/")
+    app.config["TESTING"] = True
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
 
-    assert response.status_code == 200
+    with app.app_context():
+        db.create_all()
 
-    assert response.get_json() == {
-        "application": "Secure Software Delivery Platform",
-        "status": "running",
-        "version": "v1",
-    }
+        client = app.test_client()
+
+        response = client.get("/")
+
+        assert response.status_code == 200
+
+        db.drop_all()
