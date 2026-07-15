@@ -76,10 +76,25 @@ jobs:
 
       # Trivy Docker Image Scan
       - name: Run Trivy Image Scan
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.33.1
         with:
           image-ref: secure-platform-api:latest
           format: table
           severity: CRITICAL,HIGH
-          exit-code: "1"
           ignore-unfixed: true
+          exit-code: "1"
+
+      # Generate SBOM
+      - name: Generate SBOM
+        run: |
+          trivy image \
+            --format cyclonedx \
+            --output sbom.json \
+            secure-platform-api: latest
+            
+      # Upload SBOM
+      - name: Upload SBOM Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: secure-platform-sbom
+          path: app/sbom.json
