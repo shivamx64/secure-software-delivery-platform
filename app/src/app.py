@@ -1,15 +1,21 @@
-from flask import Flask
-from flask import jsonify
+import os
+
+from flask import Flask, jsonify
 
 from src.api.health import health_bp
 from src.api.metrics import metrics_bp
 from src.api.users import users_bp
-
 from src.config import DevelopmentConfig
 from src.config import ProductionConfig
 from src.config import TestingConfig
-
 from src.database.db import db
+
+
+CONFIG_MAPPING = {
+    "development": DevelopmentConfig,
+    "testing": TestingConfig,
+    "production": ProductionConfig,
+}
 
 
 def create_app(config_class=DevelopmentConfig):
@@ -40,10 +46,17 @@ def create_app(config_class=DevelopmentConfig):
 
 
 if __name__ == "__main__":
-    app = create_app(DevelopmentConfig)
+    environment = os.getenv("FLASK_ENV", "development").lower()
+
+    config_class = CONFIG_MAPPING.get(
+        environment,
+        DevelopmentConfig,
+    )
+
+    app = create_app(config_class)
 
     app.run(
-        host="0.0.0.0",
-        port=5000,
-        debug=True,
+        host=os.getenv("FLASK_HOST", "0.0.0.0"),
+        port=int(os.getenv("FLASK_PORT", 5000)),
+        debug=os.getenv("FLASK_DEBUG", "False").lower() == "true",
     )
