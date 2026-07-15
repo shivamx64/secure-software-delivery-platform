@@ -1,18 +1,14 @@
 name: Continuous Integration
-
 on:
   push:
     branches:
       - main
-      - develop
-
   pull_request:
     branches:
       - main
-      - develop
-
 jobs:
-  build-and-test:
+  ci:
+    name: Test and Build
     runs-on: ubuntu-latest
 
     defaults:
@@ -20,23 +16,35 @@ jobs:
         working-directory: app
 
     steps:
+      # Checkout Repository
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Python
+      # Setup Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
+      # Install Dependencies
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run Unit Tests
-        run: |
-          pytest
+      # Run Unit Tests
+      - name: Run Tests
+        run: pytest
 
+      # Setup Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Build Docker Image
       - name: Build Docker Image
-        run: |
-          docker build -t secure-platform:${{ github.sha }} .
+        uses: docker/build-push-action@v6
+        with:
+          context: ./app
+          file: ./app/Dockerfile
+          push: false
+          tags: secure-platform-api:latest
