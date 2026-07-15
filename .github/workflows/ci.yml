@@ -51,10 +51,11 @@ jobs:
 
             # Trivy Filesystem Scan
             - name: Run Trivy Filesystem Scan
-              uses: aquasecurity/trivy-action@0.28.0
+              uses: aquasecurity/trivy-action@master
               with:
                   scan-type: "fs"
                   scan-ref: "./app"
                   format: "table"
                   severity: "CRITICAL,HIGH"
+                  exit-code: "1"
                   ignore-unfixed: true
