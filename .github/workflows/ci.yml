@@ -60,6 +60,7 @@ jobs:
           context: ./app
           file: ./app/Dockerfile
           push: false
+          load: true
           tags: secure-platform-api:latest
 
       # Trivy Filesystem Scan
