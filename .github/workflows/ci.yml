@@ -1,100 +1,101 @@
 name: Continuous Integration
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+    push:
+        branches:
+            - main
+    pull_request:
+        branches:
+            - main
 
 jobs:
-  ci:
-    name: Test and Build
-    runs-on: ubuntu-latest
+    ci:
+        name: Test and Build
+        runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: app
+        defaults:
+            run:
+                working-directory: app
 
-    steps:
-      # Checkout Repository
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+        steps:
+            # Checkout Repository
+            - name: Checkout Repository
+              uses: actions/checkout@v4
 
-      # Setup Python
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
+            # Setup Python
+            - name: Set up Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
 
-      # Install Dependencies
-      - name: Install Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+            # Install Dependencies
+            - name: Install Dependencies
+              run: |
+                  python -m pip install --upgrade pip
+                  pip install -r requirements.txt
 
-      # Run Unit Tests
-      - name: Run Tests
-        run: pytest
+            # Run Unit Tests
+            - name: Run Tests
+              run: pytest
 
-      # Install Semgrep
-      - name: Install Semgrep
-        run: pip install semgrep
+            # Install Semgrep
+            - name: Install Semgrep
+              run: pip install semgrep
 
-      # Static Application Security Testing (SAST)
-      - name: Run Semgrep SAST Scan
-        run: |
-          semgrep scan \
-            --config=auto \
-            . || true
+            # Static Application Security Testing (SAST)
+            - name: Run Semgrep SAST Scan
+              run: |
+                  semgrep scan \
+                    --config=auto \
+                    . || true
 
-      # Setup Docker Buildx
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+            # Setup Docker Buildx
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v3
 
-      # Build Docker Image
-      - name: Build Docker Image
-        uses: docker/build-push-action@v6
-        with:
-          context: ./app
-          file: ./app/Dockerfile
-          push: false
-          load: true
-          tags: secure-platform-api:latest
+            # Build Docker Image
+            - name: Build Docker Image
+              uses: docker/build-push-action@v6
+              with:
+                  context: ./app
+                  file: ./app/Dockerfile
+                  push: false
+                  load: true
+                  tags:
+                      secure-platform-api:latest
 
-      # Trivy Filesystem Scan
-      - name: Run Trivy Filesystem Scan
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: fs
-          scan-ref: ./app
-          format: table
-          severity: CRITICAL,HIGH
-          exit-code: "1"
-          ignore-unfixed: true
+                      # Trivy Filesystem Scan
+            - name: Run Trivy Filesystem Scan
+              uses: aquasecurity/trivy-action@master
+              with:
+                  scan-type: fs
+                  scan-ref: ./app
+                  format: table
+                  severity: CRITICAL,HIGH
+                  ignore-unfixed: true
+                  exit-code: "1"
 
-      # Trivy Docker Image Scan
-      - name: Run Trivy Image Scan
-        uses: aquasecurity/trivy-action@0.33.1
-        with:
-          image-ref: secure-platform-api:latest
-          format: table
-          severity: CRITICAL,HIGH
-          ignore-unfixed: true
-          exit-code: "1"
+            # Trivy Docker Image Scan
+            - name: Run Trivy Image Scan
+              uses: aquasecurity/trivy-action@master
+              with:
+                  image-ref: secure-platform-api:latest
+                  format: table
+                  severity: CRITICAL,HIGH
+                  ignore-unfixed: true
+                  exit-code: "1"
 
-      # Generate SBOM
-      - name: Generate SBOM
-        run: |
-          trivy image \
-            --format cyclonedx \
-            --output sbom.json \
-            secure-platform-api: latest
-            
-      # Upload SBOM
-      - name: Upload SBOM Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: secure-platform-sbom
-          path: app/sbom.json
+            # Generate CycloneDX SBOM
+            - name: Generate SBOM
+              run: |
+                  trivy image \
+                    --format cyclonedx \
+                    --output sbom.json \
+                    secure-platform-api:latest
+
+            # Upload SBOM
+            - name: Upload SBOM Artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: secure-platform-sbom
+                  path: sbom.json
